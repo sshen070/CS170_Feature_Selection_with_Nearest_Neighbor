@@ -1,4 +1,5 @@
 from pathlib import Path
+from feature_selection import*
 
 # Convert CSV data into array format for easy access during Feature Selection
 def load_data(input_path):
@@ -25,6 +26,9 @@ def main():
 
     data_arr = load_data(input_path)
     # print(data_arr)
+    # print(len(data_arr))
+
+    forward_selection(data_arr)
     
 
 if __name__ == "__main__":
