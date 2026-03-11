@@ -1,6 +1,6 @@
 import random as rand
+import math
 
-# Implement forward selection & backward elimination search algorithm
 def forward_selection(data_arr):
 
     # First column is the cluster record belongs to
@@ -31,7 +31,7 @@ def forward_selection(data_arr):
                 potential_set.add(k)
                 
                 accuracy = leave_one_out_cross_validation(
-                    data_arr, current_set, k
+                    data_arr, potential_set
                 )
 
                 if (accuracy > best_accuracy_curr_level):
@@ -44,10 +44,10 @@ def forward_selection(data_arr):
 
         if best_accuracy_curr_level < best_overall_accuracy:
             print('\n(Warning, Accuracy has decreased! Continuing search in case of local maxima)')
-            
+
         else:
             
-            # Keep track of optimal set & accuracy
+            # Keep track of optimal set of features & accuracy
             best_set = current_set.copy()
             best_overall_accuracy = best_accuracy_curr_level
             print('\n')
@@ -58,5 +58,40 @@ def forward_selection(data_arr):
 
 
 # Unimplemented ~ Testing search
-def leave_one_out_cross_validation(data_arr, current_set, k):
-    return rand.random()
+def leave_one_out_cross_validation(data_arr, potential_set):
+    
+    number_correctly_classified = 0
+
+    # Iterate for all for the whole length of the dataset (for each object)
+    for i in range (len(data_arr)):
+        
+        object_label = data_arr[i][0]
+
+        # Track closest neigbor & label
+        nearest_neighbor_distance = float('inf')
+        nearest_neighbor_label = None
+        
+        # For each object find the nearest neighbor (compare with every other object)
+        for k in range (len(data_arr)):
+            
+            # Comparing an object with itself will return 0 (we must find the closest neighbor)
+            if (k != i):
+                
+                # Calculate the Euclidian Distance from point i to every other point k (only based on features in the potential_set)
+                total_diff = 0
+                for feature in potential_set:
+                    total_diff += pow(data_arr[i][feature] - data_arr[k][feature], 2)
+                
+                total_dist = math.sqrt(total_diff)
+
+                # Is the distance from the previously calculated neighbor closer?
+                if (total_dist < nearest_neighbor_distance):
+                    nearest_neighbor_distance = total_dist
+                    nearest_neighbor_label = data_arr[k][0]
+
+        if (nearest_neighbor_label == object_label):
+            number_correctly_classified += 1
+
+    # Find the avg amount of correctly classified items for all elements between the n features
+    num_items = len(data_arr)
+    return number_correctly_classified/num_items
