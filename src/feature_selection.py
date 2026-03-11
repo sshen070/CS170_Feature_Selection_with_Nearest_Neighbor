@@ -31,7 +31,7 @@ def forward_selection(data_arr):
                 potential_set.add(k)
                 
                 accuracy = leave_one_out_cross_validation(
-                    data_arr, potential_set
+                    data_arr, potential_set, best_accuracy_curr_level
                 )
 
                 if (accuracy > best_accuracy_curr_level):
@@ -58,9 +58,13 @@ def forward_selection(data_arr):
 
 
 # Unimplemented ~ Testing search
-def leave_one_out_cross_validation(data_arr, potential_set):
+def leave_one_out_cross_validation(data_arr, potential_set, best_accuracy_curr_level):
     
     number_correctly_classified = 0
+
+    # Early abandoning optimization
+    tot_mistakes = 0
+    max_allowed_mistakes = int((1 - best_accuracy_curr_level) * len(data_arr))
 
     # Iterate for all for the whole length of the dataset (for each object)
     for i in range (len(data_arr)):
@@ -91,7 +95,12 @@ def leave_one_out_cross_validation(data_arr, potential_set):
 
         if (nearest_neighbor_label == object_label):
             number_correctly_classified += 1
+        else:
+            tot_mistakes += 1
 
+        if (tot_mistakes > max_allowed_mistakes):
+            return -1
+        
     # Find the avg amount of correctly classified items for all elements between the n features
     num_items = len(data_arr)
     return number_correctly_classified/num_items
