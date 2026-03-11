@@ -12,24 +12,31 @@ def load_data(input_path):
             values = line.strip().split()
 
             for i in range(len(values)):
-                record.append(values[i])
+                record.append(float(values[i]))
 
             data.append(record)
 
     return data
 
+# Datsets: Small(52) & Large(38)
 def main():
-    data_set = input('Enter Data Set FILENAME: ')
-    input_path = Path('../data/') / data_set
+    # data_set = input('Enter Data Set FILENAME: ')
+    # input_path = Path('../data/') / data_set
+    input_path_small = Path('../data/CS170_Small_DataSet__52.txt')
+    input_path_large = Path('../data/CS170_Large_DataSet__38.txt')
 
-    print(f"Using file: {input_path}")
+    if (int(input('Enter 1 to choose Small Dataset: ')) == 1):
+        data_arr = load_data(input_path_small)
+        print(f"Using file: {input_path_small}")
 
-    data_arr = load_data(input_path)
-    # print(data_arr)
-    # print(len(data_arr))
+        forward_selection(data_arr)
 
-    forward_selection(data_arr)
-    
+    else:
+        data_arr = load_data(input_path_large)
+        print(f"Using file: {input_path_large}")
+
+        forward_selection(data_arr)
+
 
 if __name__ == "__main__":
     main()
