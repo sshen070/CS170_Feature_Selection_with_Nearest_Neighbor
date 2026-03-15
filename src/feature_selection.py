@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import random as rand
 import math
 
@@ -13,9 +14,17 @@ def forward_selection(data_arr):
     best_overall_accuracy = 0 
     best_set = set()
 
+    # Track the selected set over all iterations & corresponding accuracies    
+    selected_sets = []
+    selected_accuracy = []
+
     print('Beginning Forward Selection\n')
+
+    # Reduce computational time for large dataset
+    half_way = int(num_features/2)
+
     # N iterations (1 per level of parsing)
-    for i in range(num_features):
+    for i in range(half_way):
 
         feature_to_add_at_this_level = None
 
@@ -42,6 +51,10 @@ def forward_selection(data_arr):
         
         current_set.add(feature_to_add_at_this_level)
 
+        # Append best feature set & accuracy at the level --> Return for analysis
+        selected_sets.append(current_set.copy())
+        selected_accuracy.append(best_accuracy_curr_level)
+
         if best_accuracy_curr_level < best_overall_accuracy:
             print('\n(Warning, Accuracy has decreased! Continuing search in case of local maxima)')
 
@@ -55,6 +68,8 @@ def forward_selection(data_arr):
         print(f'Feature set {current_set} was best, accuracy is {best_accuracy_curr_level}\n')
 
     print(f'Finished Forward Selection! The best feature subset is {best_set}, which has an accuracy of {best_overall_accuracy}')
+
+    return selected_sets, selected_accuracy
 
 
 def backward_elimination(data_arr):
@@ -71,10 +86,17 @@ def backward_elimination(data_arr):
     best_overall_accuracy = 0 
     best_set = current_set.copy()
 
+    # Track the selected set over all iterations & corresponding accuracies    
+    selected_sets = []
+    selected_accuracy = []
+
     print('Beginning Backward Elimination\n')
 
+    # Reduce computational time for large dataset
+    half_way = int(num_features/2)
+
     # Continue to run until only one feature remains (no more feature elimination can be performed)
-    while(len(current_set) > 1):
+    while(len(current_set) > half_way):
 
         feature_to_remove_at_this_level = None
 
@@ -97,6 +119,11 @@ def backward_elimination(data_arr):
         
         current_set.remove(feature_to_remove_at_this_level)
 
+        # Append best feature set & accuracy at the level --> Return for analysis
+        selected_sets.append(current_set.copy())
+        selected_accuracy.append(best_accuracy_curr_level)
+
+
         if best_accuracy_curr_level < best_overall_accuracy:
             print('\n(Warning, Accuracy has decreased! Continuing search in case of local maxima)')
 
@@ -111,6 +138,7 @@ def backward_elimination(data_arr):
 
     print(f'Finished Backward Elimination! The best feature subset is {best_set}, which has an accuracy of {best_overall_accuracy}')
 
+    return selected_sets, selected_accuracy
 
 
 def leave_one_out_cross_validation(data_arr, potential_set, best_accuracy_curr_level):
@@ -159,3 +187,34 @@ def leave_one_out_cross_validation(data_arr, potential_set, best_accuracy_curr_l
     # Find the avg amount of correctly classified items for all elements between the n features
     num_items = len(data_arr)
     return number_correctly_classified/num_items
+
+
+def visualize_feature_selection(selected_sets, selected_accuracy):
+    
+    # Convert sets to sorted strings for labeling
+    x_labels = [str(sorted(s)) for s in selected_sets]
+    tot_sets = int(len(selected_accuracy))
+
+    accuracy_percent = []
+    for i in range(tot_sets):
+        accuracy_percent.append(selected_accuracy[i] * 100)
+        
+    plt.figure(figsize=(12,6))
+    
+    # Bar graph
+    bars = plt.bar(range(tot_sets), accuracy_percent, color='skyblue')
+    
+    # Label x-axis with selected feature sets
+    plt.xticks(ticks=range(tot_sets), labels=x_labels, rotation=45, ha='right')
+    
+    plt.xlabel("Selected Feature Sets")
+    plt.ylabel("Accuracy (%)")
+    plt.title("Forward Selection Performance")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.ylim(0,100)
+
+    # Label percentages on each bar & expand visualization for x-ticks sets to be seen
+    plt.bar_label(bars, fmt="%.2f%%", padding=3)
+    plt.tight_layout()
+
+    plt.show()
