@@ -25,54 +25,56 @@ def main():
     # input_path = Path('../data/') / data_set
     input_path = Path('../data/personalized_datasets/')
 
-    if (int(input('Enter 1 to choose Small Dataset: ')) == 1):
+    user_input = int(input('Enter 1 to choose Small Dataset: 2 for Large Dataset: '))
+    if (user_input == 1):
         load_path = input_path / 'CS170_Small_DataSet__52.txt'
         data_arr = load_data(load_path)
-        print(f"Using file: {load_path}")
+        print(f"Using file: {load_path}\n")
 
-        # --- Forward Selection Timing ---
-        start_time = time.time()
-        selected_sets, selected_accuracy = forward_selection(data_arr)
-        forward_duration = time.time() - start_time
-        print(f"Forward Selection completed in {forward_duration:.2f} seconds.\n")
-
-        # --- Backward Elimination Timing ---
-        start_time1 = time.time()
-        selected_sets2, selected_accuracy2 = backward_elimination(data_arr)
-        backward_duration = time.time() - start_time1
-        print(f"Backward Elimination completed in {backward_duration:.2f} seconds.\n")
-
-        # --- Visualize results ---
-        visualize_feature_selection(selected_sets, selected_accuracy)
-        visualize_feature_selection(selected_sets2, selected_accuracy2)
-
-        print(f"Forward Selection completed in {forward_duration:.2f} seconds. Best Accuracy: {max(selected_accuracy)}\n")
-        print(f"Backward Elimination completed in {backward_duration:.2f} seconds. Best Accuracy: {max(selected_accuracy2)}\n")
-
+        user_input = int(input('Enter 1 for Forward Selection; 2 for Backwards Elimination: '))
         
-    else:
+        if (user_input == 1):
+            # Forward Selection Timing
+            start_time = time.time()
+            selected_sets, selected_accuracy = forward_selection(data_arr)
+            forward_duration = time.time() - start_time
+
+            visualize_feature_selection(selected_sets, selected_accuracy)
+            print(f"Forward Selection completed in {forward_duration:.2f} seconds. Best Accuracy: {max(selected_accuracy)}\n")
+
+        elif (user_input == 2):
+            # Backward Elimination Timing 
+            start_time = time.time()
+            selected_sets, selected_accuracy = backward_elimination(data_arr)
+            backward_duration = time.time() - start_time
+
+            visualize_feature_selection(selected_sets, selected_accuracy)
+            print(f"Backward Elimination completed in {backward_duration:.2f} seconds. Best Accuracy: {max(selected_accuracy)}\n")
+        
+    elif (user_input == 2):
         load_path = input_path / 'CS170_Large_DataSet__38.txt'
         data_arr = load_data(load_path)
         print(f"Using file: {load_path}")
+        
+        user_input = int(input('Enter 1 for Forward Selection; 2 for Backwards Elimination: '))
 
-        # --- Forward Selection Timing ---
-        start_time = time.time()
-        selected_sets, selected_accuracy = forward_selection(data_arr)
-        forward_duration = time.time() - start_time
-        print(f"Forward Selection completed in {forward_duration:.2f} seconds.\n")
+        if (user_input == 1):
+            # Forward Selection Timing
+            start_time = time.time()
+            selected_sets, selected_accuracy = forward_selection(data_arr)
+            forward_duration = time.time() - start_time
 
-        # # --- Backward Elimination Timing ---
-        # start_time1 = time.time()
-        # selected_sets2, selected_accuracy2 = backward_elimination(data_arr)
-        # backward_duration = time.time() - start_time1
-        # print(f"Backward Elimination completed in {backward_duration:.2f} seconds.\n")
+            visualize_feature_selection(selected_sets, selected_accuracy)
+            print(f"Forward Selection completed in {forward_duration:.2f} seconds. Best Accuracy: {max(selected_accuracy)}\n")
 
-        # --- Visualize results ---
-        visualize_feature_selection(selected_sets, selected_accuracy)
-        # visualize_feature_selection(selected_sets2, selected_accuracy2)
+        elif (user_input == 2):
+            # Backward Elimination Timing 
+            start_time = time.time()
+            selected_sets, selected_accuracy = backward_elimination(data_arr)
+            backward_duration = time.time() - start_time
 
-        print(f"Forward Selection completed in {forward_duration:.2f} seconds. Best Accuracy: {max(selected_accuracy)}\n")
-        # print(f"Backward Elimination completed in {backward_duration:.2f} seconds. Best Accuracy: {max(selected_accuracy2)}\n")
+            visualize_feature_selection(selected_sets, selected_accuracy)
+            print(f"Backward Elimination completed in {backward_duration:.2f} seconds. Best Accuracy: {max(selected_accuracy)}\n")
 
 if __name__ == "__main__":
     main()
