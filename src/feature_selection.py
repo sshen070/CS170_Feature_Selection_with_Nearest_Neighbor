@@ -18,13 +18,30 @@ def forward_selection(data_arr):
     selected_sets = []
     selected_accuracy = []
 
+    print(f'\nThis dataset has a total of {num_features} features, with {len(data_arr)} instances.')
+    
+    # Test with all features for references
+    full_set = set()
+    for i in range(1, num_features + 1):
+        full_set.add(i)
+    print(f'Running nearest neighbor with all {num_features} features, using “leaving-one-out” evaluation, I get an accuracy of {leave_one_out_cross_validation(data_arr, full_set, 0)}')
     print('Beginning Forward Selection\n')
+
+
+    # Determine empty set stats before Forward Selection
+    empty_set_accuracy = leave_one_out_cross_validation(data_arr, current_set, 0)
+    print(f'\tUsing feature(s) {current_set} accuracy is {empty_set_accuracy}\n')
+
+    selected_sets.append(current_set.copy())
+    selected_accuracy.append(empty_set_accuracy)
+
+    best_overall_accuracy = empty_set_accuracy
 
     # Reduce computational time for large dataset
     half_way = int(num_features/2)
 
     # N iterations (1 per level of parsing)
-    for i in range(half_way):
+    for i in range(num_features):
 
         feature_to_add_at_this_level = None
 
@@ -90,13 +107,17 @@ def backward_elimination(data_arr):
     selected_sets = []
     selected_accuracy = []
 
+    print(f'\nThis dataset has a total of {num_features} features, with {len(data_arr)} instances.')
+    
+    # Test with all features for references
+    print(f'Running nearest neighbor with all {num_features} features, using “leaving-one-out” evaluation, I get an accuracy of {leave_one_out_cross_validation(data_arr, current_set, 0)}')
     print('Beginning Backward Elimination\n')
 
     # Reduce computational time for large dataset
-    half_way = int(num_features/2)
+    quarter_way = 3 * int(num_features/4)
 
     # Continue to run until only one feature remains (no more feature elimination can be performed)
-    while(len(current_set) > half_way):
+    while(len(current_set) > 1):
 
         feature_to_remove_at_this_level = None
 
@@ -136,6 +157,19 @@ def backward_elimination(data_arr):
 
         print(f'Feature set {current_set} was best, accuracy is {best_accuracy_curr_level}\n')
 
+
+    # Determine empty set stats at the end of Backward Elimination
+    empty_set = set()
+    empty_set_accuracy = leave_one_out_cross_validation(data_arr, empty_set, 0)
+    print(f'\tUsing feature(s) {empty_set} accuracy is {empty_set_accuracy}\n')
+
+    selected_sets.append(empty_set)
+    selected_accuracy.append(empty_set_accuracy)
+
+    if (empty_set_accuracy > best_overall_accuracy):
+        best_set = empty_set
+        best_overall_accuracy = empty_set_accuracy
+
     print(f'Finished Backward Elimination! The best feature subset is {best_set}, which has an accuracy of {best_overall_accuracy}')
 
     return selected_sets, selected_accuracy
@@ -143,9 +177,32 @@ def backward_elimination(data_arr):
 
 def leave_one_out_cross_validation(data_arr, potential_set, best_accuracy_curr_level):
     
-    number_correctly_classified = 0
+    # If potential_set is null (cross validation edge case)
+    if (not potential_set):
+        
+        # Keep track of each of the different labels and occurances with a dict
+        cluster_counter = {}
+
+        # Record every label in data set
+        for i in range(len(data_arr)):
+        
+            object_label = data_arr[i][0]
+            if (object_label in cluster_counter):
+                cluster_counter[object_label] += 1
+
+            else:
+                cluster_counter[object_label] = 1
+
+        largest_count = 0
+
+        for key in cluster_counter:
+            if (cluster_counter[key] > largest_count):
+                largest_count = cluster_counter[key]
+
+        return largest_count/len(data_arr)
 
     # Early abandoning optimization
+    number_correctly_classified = 0
     tot_mistakes = 0
     max_allowed_mistakes = int((1 - best_accuracy_curr_level) * len(data_arr))
 
@@ -209,7 +266,7 @@ def visualize_feature_selection(selected_sets, selected_accuracy):
     
     plt.xlabel("Selected Feature Sets")
     plt.ylabel("Accuracy (%)")
-    plt.title("Forward Selection Performance")
+    plt.title("Selection Algorithm Performance")
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.ylim(0,100)
 
