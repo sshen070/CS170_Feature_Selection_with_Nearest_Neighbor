@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import random as rand
 import math
 
 def forward_selection(data_arr):
@@ -24,13 +23,13 @@ def forward_selection(data_arr):
     full_set = set()
     for i in range(1, num_features + 1):
         full_set.add(i)
-    print(f'Running nearest neighbor with all {num_features} features, using “leaving-one-out” evaluation, I get an accuracy of {leave_one_out_cross_validation(data_arr, full_set, 0)}')
+    print(f'Running nearest neighbor with all {num_features} features, using “leaving-one-out” evaluation, I get an accuracy of {leave_one_out_cross_validation(data_arr, full_set, 0) * 100:.1f}%')
     print('Beginning Forward Selection\n')
 
 
     # Determine empty set stats before Forward Selection
     empty_set_accuracy = leave_one_out_cross_validation(data_arr, current_set, 0)
-    print(f'\tUsing feature(s) {current_set} accuracy is {empty_set_accuracy}\n')
+    print(f'\tUsing feature(s) {current_set} accuracy is {empty_set_accuracy * 100:.1f}%\n')
 
     selected_sets.append(current_set.copy())
     selected_accuracy.append(empty_set_accuracy)
@@ -64,7 +63,7 @@ def forward_selection(data_arr):
                     best_accuracy_curr_level = accuracy
                     feature_to_add_at_this_level = k
             
-                print(f'\tUsing features(s) {potential_set} accuracy is {accuracy}')
+                print(f'\tUsing features(s) {potential_set} accuracy is {accuracy * 100:.1f}%')
         
         current_set.add(feature_to_add_at_this_level)
 
@@ -82,9 +81,9 @@ def forward_selection(data_arr):
             best_overall_accuracy = best_accuracy_curr_level
             print('\n')
 
-        print(f'Feature set {current_set} was best, accuracy is {best_accuracy_curr_level}\n')
+        print(f'Feature set {current_set} was best, accuracy is {best_accuracy_curr_level * 100:.1f}%\n')
 
-    print(f'Finished Forward Selection! The best feature subset is {best_set}, which has an accuracy of {best_overall_accuracy}')
+    print(f'Finished Forward Selection! The best feature subset is {best_set}, which has an accuracy of {best_overall_accuracy * 100:.1f}%')
 
     return selected_sets, selected_accuracy
 
@@ -110,11 +109,12 @@ def backward_elimination(data_arr):
     print(f'\nThis dataset has a total of {num_features} features, with {len(data_arr)} instances.')
     
     # Test with all features for references
-    print(f'Running nearest neighbor with all {num_features} features, using “leaving-one-out” evaluation, I get an accuracy of {leave_one_out_cross_validation(data_arr, current_set, 0)}')
+    print(f'Running nearest neighbor with all {num_features} features, using “leaving-one-out” evaluation, I get an accuracy of {leave_one_out_cross_validation(data_arr, current_set, 0) * 100:.1f}%')
     print('Beginning Backward Elimination\n')
 
     # Reduce computational time for large dataset
     quarter_way = 3 * int(num_features/4)
+    half_way = int(num_features/2)
 
     # Continue to run until only one feature remains (no more feature elimination can be performed)
     while(len(current_set) > 1):
@@ -136,7 +136,7 @@ def backward_elimination(data_arr):
                 best_accuracy_curr_level = accuracy
                 feature_to_remove_at_this_level = k
         
-            print(f'\tUsing features(s) {potential_set} accuracy is {accuracy}')
+            print(f'\tUsing features(s) {potential_set} accuracy is {accuracy * 100:.1f}%')
         
         current_set.remove(feature_to_remove_at_this_level)
 
@@ -155,7 +155,7 @@ def backward_elimination(data_arr):
             best_overall_accuracy = best_accuracy_curr_level
             print('\n')
 
-        print(f'Feature set {current_set} was best, accuracy is {best_accuracy_curr_level}\n')
+        print(f'Feature set {current_set} was best, accuracy is {best_accuracy_curr_level * 100:.1f}%\n')
 
 
     # Determine empty set stats at the end of Backward Elimination
@@ -170,7 +170,7 @@ def backward_elimination(data_arr):
         best_set = empty_set
         best_overall_accuracy = empty_set_accuracy
 
-    print(f'Finished Backward Elimination! The best feature subset is {best_set}, which has an accuracy of {best_overall_accuracy}')
+    print(f'Finished Backward Elimination! The best feature subset is {best_set}, which has an accuracy of {best_overall_accuracy * 100:.1f}%')
 
     return selected_sets, selected_accuracy
 
@@ -201,8 +201,9 @@ def leave_one_out_cross_validation(data_arr, potential_set, best_accuracy_curr_l
 
         return largest_count/len(data_arr)
 
-    # Early abandoning optimization
     number_correctly_classified = 0
+
+    # Early abandoning optimization
     tot_mistakes = 0
     max_allowed_mistakes = int((1 - best_accuracy_curr_level) * len(data_arr))
 
